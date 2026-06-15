@@ -1,0 +1,9 @@
+                                               QUERY PLAN                                                
+---------------------------------------------------------------------------------------------------------
+ Seq Scan on order_items  (cost=0.00..21.50 rows=10 width=37) (actual time=0.014..0.082 rows=10 loops=1)
+   Filter: (order_id = 1)
+   Rows Removed by Filter: 990
+ Planning Time: 0.704 ms
+ Execution Time: 0.167 ms
+(5 rows)
+

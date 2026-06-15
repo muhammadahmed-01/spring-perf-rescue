@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: spring-perf-rescue-lab
+  datasource:
+    url: jdbc:postgresql://localhost:5432/perf_lab
+    username: perf
+    password: perf
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        generate_statistics: true
+        default_batch_fetch_size: 0
+        jdbc:
+          batch_size: 50
+    show-sql: false
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+app:
+  seed:
+    enabled: ${APP_SEED_ENABLED:true}
+    user-count: 10
+    orders-per-user: 10
+    items-per-order: 10
+
+logging:
+  level:
+    com.muhammadahmed.perf: INFO
+    org.hibernate.SQL: WARN

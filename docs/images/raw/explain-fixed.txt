@@ -1,0 +1,21 @@
+                                                              QUERY PLAN                                                               
+---------------------------------------------------------------------------------------------------------------------------------------
+ Unique  (cost=89.17..114.17 rows=1000 width=584) (actual time=0.868..1.074 rows=1000 loops=1)
+   ->  Sort  (cost=89.17..91.67 rows=1000 width=584) (actual time=0.867..0.910 rows=1000 loops=1)
+         Sort Key: o.id, i.id, o.status, o.created_at, o.user_id, u.name, i.product_name, i.quantity, i.unit_price
+         Sort Method: quicksort  Memory: 134kB
+         ->  Hash Join  (cost=14.82..39.34 rows=1000 width=584) (actual time=0.146..0.452 rows=1000 loops=1)
+               Hash Cond: (o.user_id = u.id)
+               ->  Hash Join  (cost=3.25..24.99 rows=1000 width=68) (actual time=0.092..0.298 rows=1000 loops=1)
+                     Hash Cond: (i.order_id = o.id)
+                     ->  Seq Scan on order_items i  (cost=0.00..19.00 rows=1000 width=37) (actual time=0.023..0.102 rows=1000 loops=1)
+                     ->  Hash  (cost=2.00..2.00 rows=100 width=31) (actual time=0.046..0.048 rows=100 loops=1)
+                           Buckets: 1024  Batches: 1  Memory Usage: 15kB
+                           ->  Seq Scan on orders o  (cost=0.00..2.00 rows=100 width=31) (actual time=0.011..0.019 rows=100 loops=1)
+               ->  Hash  (cost=10.70..10.70 rows=70 width=524) (actual time=0.024..0.026 rows=10 loops=1)
+                     Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                     ->  Seq Scan on users u  (cost=0.00..10.70 rows=70 width=524) (actual time=0.011..0.013 rows=10 loops=1)
+ Planning Time: 1.443 ms
+ Execution Time: 1.370 ms
+(17 rows)
+

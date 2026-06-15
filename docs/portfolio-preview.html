@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spring Perf Rescue Lab - Portfolio Preview</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --red: #f85149;
+      --green: #3fb950;
+      --blue: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 48px; }
+    h1 { font-size: 1.75rem; margin: 0 0 8px; }
+    .subtitle { color: var(--muted); margin-bottom: 28px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .metric {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #30363d;
+    }
+    .metric label { display: block; font-size: 0.85rem; color: var(--muted); }
+    .metric .vals { display: flex; gap: 12px; align-items: baseline; margin-top: 8px; }
+    .metric .buggy { color: var(--red); font-size: 1.5rem; font-weight: 700; }
+    .metric .fixed { color: var(--green); font-size: 1.5rem; font-weight: 700; }
+    .metric .arrow { color: var(--muted); }
+    h2 { font-size: 1.15rem; margin: 28px 0 12px; color: var(--blue); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    figure {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid #30363d;
+      overflow: hidden;
+    }
+    figure img {
+      width: 100%;
+      display: block;
+      background: #fff;
+    }
+    figcaption {
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #30363d;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    a { color: var(--blue); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Spring Boot + PostgreSQL Performance Rescue Lab</h1>
+    <p class="subtitle">Measured N+1 demo: Hibernate lazy load vs JOIN FETCH. Docker + k6 + EXPLAIN.</p>
+
+    <div class="metrics">
+      <div class="metric">
+        <label>SQL queries / request</label>
+        <div class="vals"><span class="buggy">111</span><span class="arrow">→</span><span class="fixed">1</span></div>
+      </div>
+      <div class="metric">
+        <label>k6 p95 latency</label>
+        <div class="vals"><span class="buggy">134 ms</span><span class="arrow">→</span><span class="fixed">17 ms</span></div>
+      </div>
+      <div class="metric">
+        <label>Throughput</label>
+        <div class="vals"><span class="buggy">62 req/s</span><span class="arrow">→</span><span class="fixed">89 req/s</span></div>
+      </div>
+      <div class="metric">
+        <label>Careem production (reference)</label>
+        <div class="vals"><span class="buggy">1286 q</span><span class="arrow">→</span><span class="fixed">2</span></div>
+      </div>
+    </div>
+
+    <h2>Load tests (k6)</h2>
+    <div class="grid">
+      <figure>
+        <img src="images/k6-buggy-results.png" alt="k6 buggy results" />
+        <figcaption>Buggy endpoint: p95 134 ms, 10 VUs, 30s</figcaption>
+      </figure>
+      <figure>
+        <img src="images/k6-fixed-results.png" alt="k6 fixed results" />
+        <figcaption>Fixed endpoint: p95 17 ms, same load</figcaption>
+      </figure>
+    </div>
+
+    <h2>Query count proof</h2>
+    <figure>
+      <img src="images/query-count-comparison.png" alt="Query count comparison" />
+      <figcaption>X-Query-Count: 111 vs 1 on 100 seeded orders</figcaption>
+    </figure>
+
+    <h2>EXPLAIN ANALYZE</h2>
+    <div class="grid">
+      <figure>
+        <img src="images/explain-buggy.png" alt="EXPLAIN buggy" />
+        <figcaption>N+1: seq scan on order_items per order</figcaption>
+      </figure>
+      <figure>
+        <img src="images/explain-fixed.png" alt="EXPLAIN fixed" />
+        <figcaption>JOIN FETCH: single hash join plan</figcaption>
+      </figure>
+    </div>
+
+    <h2>Architecture</h2>
+    <figure>
+      <img src="images/architecture-diagram.png" alt="Architecture diagram" />
+      <figcaption>Buggy lazy loop vs fixed JOIN FETCH path</figcaption>
+    </figure>
+
+    <h2>Metrics chart</h2>
+    <figure>
+      <img src="images/metrics-comparison.png" alt="Metrics comparison chart" />
+      <figcaption>Before/after: queries, p95, throughput</figcaption>
+    </figure>
+
+    <div class="footer">
+      Muhammad Ahmed · Portfolio lab · Measured Jun 16, 2026 ·
+      <a href="../PORTFOLIO-ASSETS.md">Portfolio pack</a> ·
+      <a href="../README.md">README</a>
+    </div>
+  </div>
+</body>
+</html>
