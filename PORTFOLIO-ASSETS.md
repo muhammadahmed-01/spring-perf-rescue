@@ -1,32 +1,40 @@
 # Portfolio Assets Pack
 
-Use this file when uploading to Upwork, pinning on GitHub, or drafting LinkedIn posts.
+Upload these when pitching on Upwork, pinning on GitHub, or posting on LinkedIn. Every image maps to a measured result you can defend in a client call.
 
 ---
 
 ## Upwork Portfolio Title
 
-**Spring Boot + PostgreSQL N+1 Rescue: 111 Queries to 1, p95 134 ms to 17 ms**
+**Spring Boot API Rescue: 111 Hidden Queries to 1 | p95 134 ms to 17 ms | Production-Proven at Careem**
+
+Alternative (shorter):
+
+**Stop ORM Latency Bleed: 111 Queries to 1, p95 Cut 7.9x (Spring Boot + PostgreSQL)**
 
 ---
 
-## Upwork Portfolio Description (3 sentences)
+## Upwork Portfolio Description
 
-I built a reproducible performance case study that documents a Hibernate N+1 failure on a Spring Boot orders API and the JOIN FETCH fix with measured before/after numbers. The reference implementation runs in Docker: k6 load tests show p95 latency dropping from 134 ms to 17 ms while SQL round trips fall from 111 to 1 per request. It mirrors the same investigation process I used on a production ORM path at Careem (p99 8s to under 1s, 1,286 queries to 2 batch calls).
+Your users feel every slow API response. Behind the scenes, Hibernate is often firing dozens or hundreds of hidden SELECTs on a single list endpoint, and nobody catches it until traffic spikes or the connection pool saturates.
+
+This portfolio case study documents a real failure class and the fix, with numbers you can verify in Docker: k6 load tests show **p95 latency dropping from 134 ms to 17 ms**, SQL round trips falling from **111 to 1 per request**, and EXPLAIN ANALYZE showing exactly why. It mirrors the same audit process used on a production ORM path at Careem, where **p99 went from ~8 seconds to under 1 second** and **1,286 queries dropped to 2 batch calls**. Included: audit PDF template, Phase 1 SOW, and before/after screenshots ready for client delivery.
 
 ---
 
 ## Images to Upload (Order)
 
+Lead with proof. Recruiters and clients decide in the first two images.
+
 | Order | File | Caption for Upwork |
 |-------|------|-------------------|
-| 1 | `docs/images/k6-buggy-results.png` | k6 load test: buggy endpoint p95 134 ms, 10 VUs, 30s |
-| 2 | `docs/images/k6-fixed-results.png` | k6 load test: fixed endpoint p95 17 ms, same load profile |
-| 3 | `docs/images/query-count-comparison.png` | SQL count per request: 111 (N+1) vs 1 (JOIN FETCH) |
-| 4 | `docs/images/explain-buggy.png` | EXPLAIN ANALYZE: repeated seq scan on order_items per order |
-| 5 | `docs/images/explain-fixed.png` | EXPLAIN ANALYZE: single hash join across orders, users, items |
-| 6 | `docs/images/architecture-diagram.png` | Request flow: buggy lazy loop vs fixed JOIN FETCH path |
-| 7 (optional) | `docs/images/metrics-comparison.png` | Before/after bar chart: queries, p95, throughput |
+| 1 | `docs/images/query-count-comparison.png` | Root cause proof: 111 SQL round trips per request (N+1) reduced to 1 (JOIN FETCH) |
+| 2 | `docs/images/k6-fixed-results.png` | After fix: p95 17 ms under 10 concurrent users, same load profile as before |
+| 3 | `docs/images/k6-buggy-results.png` | Before fix: p95 134 ms, same endpoint under identical k6 load (10 VUs, 30s) |
+| 4 | `docs/images/metrics-comparison.png` | Measured before/after: queries, p95 latency, throughput on same hardware |
+| 5 | `docs/images/explain-buggy.png` | EXPLAIN ANALYZE: repeated seq scan on order_items per order (the hidden cost) |
+| 6 | `docs/images/explain-fixed.png` | EXPLAIN ANALYZE: single hash join across orders, users, items |
+| 7 (optional) | `docs/images/architecture-diagram.png` | Request flow: lazy loop vs JOIN FETCH fix path |
 
 ---
 
@@ -34,13 +42,13 @@ I built a reproducible performance case study that documents a Hibernate N+1 fai
 
 **Repository:** https://github.com/muhammadahmed-01/spring-perf-rescue-lab
 
-Pin the repo and lead the README with the metrics table and the `docs/images/query-count-comparison.png` screenshot. Link to:
+Pin the repo and lead the README with the metrics table and `docs/images/query-count-comparison.png`. Link to:
 
 - `docs/PHASE-1-AUDIT-SOW.md` (proposal scope)
 - `docs/audit-report-template.md` (sample deliverable)
 - `PORTFOLIO-ASSETS.md` (this file)
 
-**Pin description (short):** Reproducible N+1 case study with k6 + EXPLAIN. 111 queries to 1, p95 134 ms to 17 ms.
+**Pin description (short):** Production-proven Spring Boot ORM audit. 111 queries to 1, p95 134 ms to 17 ms. Careem: p99 8s to under 1s.
 
 ---
 
@@ -48,11 +56,17 @@ Pin the repo and lead the README with the metrics table and the `docs/images/que
 
 Real client systems combine ORM issues with caching, connection pools, external APIs, and infra limits. This case study does not promise a single JOIN FETCH fixes every production incident. It proves a **repeatable audit process**: capture baseline query count, run one EXPLAIN, prioritize P0/P1/P2, ship a minimal fix, and re-measure on the same hardware. Phase 1 scope is defined in `docs/PHASE-1-AUDIT-SOW.md`. Careem-scale work used the same sequence at larger data and traffic; deeper distributed or infra problems are scoped as follow-on work.
 
+**Honest framing for founders:** Phase 1 de-risks the hire. You get measured evidence on one endpoint before committing to a larger engagement.
+
 ---
 
 ## LinkedIn Post Snippet
 
-Shipped a portfolio case study: Spring Boot + PostgreSQL N+1 from 111 SQL calls to 1, p95 134 ms to 17 ms. Docker + k6 + EXPLAIN, same audit flow I used in production. Repo link in comments.
+Most slow Spring Boot APIs are not slow code. They are slow databases doing work nobody counted.
+
+I documented a production failure class end to end: Hibernate N+1 on a hot GET endpoint, **111 SQL calls per request down to 1**, **p95 134 ms to 17 ms** under load. Same audit flow I used at Careem (p99 ~8s to under 1s, 1,286 queries to 2 batch calls).
+
+Reproducible in Docker. Audit PDF template included. Link in comments.
 
 ---
 

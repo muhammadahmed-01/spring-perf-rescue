@@ -8,7 +8,11 @@
 
 ## Overview
 
-A fixed-scope audit of one production hot endpoint where latency or database load is suspected. You receive a prioritized findings report with measured evidence, not generic advice.
+Your API is costing you users and infrastructure budget every time a hot endpoint fires too many database round trips. This is a fixed-scope audit of **one production hot endpoint** where latency or database load is suspected.
+
+You receive a prioritized findings report with **measured evidence**, not generic advice. Baseline numbers, root cause in code, EXPLAIN proof, and a clear P0/P1/P2 action list. Same investigation sequence used on production ORM paths at Careem (p99 ~8s to under 1s, 1,286 queries to 2 batch calls).
+
+**What Phase 1 de-risks:** You know exactly what is wrong, how bad it is, and what to fix first, before committing to a larger engagement.
 
 ---
 
@@ -30,6 +34,8 @@ A fixed-scope audit of one production hot endpoint where latency or database loa
 
 ## Out of Scope
 
+Clear boundaries protect both of us. Phase 1 is an audit, not a rewrite.
+
 - Full application rewrite or architecture migration
 - Kubernetes, Terraform, or cloud infra tuning
 - Greenfield development or new feature work
@@ -37,6 +43,8 @@ A fixed-scope audit of one production hot endpoint where latency or database loa
 - SOC 2, HIPAA, or compliance audit work
 - Multi-region or distributed tracing deep dives (escalation path available separately)
 - Database vendor migration (e.g. PostgreSQL to Aurora)
+
+Follow-on sprints cover additional endpoints, CI guards, and load test suites. Scoped separately after Phase 1 findings.
 
 ---
 
@@ -47,6 +55,8 @@ A fixed-scope audit of one production hot endpoint where latency or database loa
 3. **Reproduction steps** (curl/k6 commands or staging URL for validation)
 4. **Optional:** GitHub PR with JOIN FETCH, `@EntityGraph`, or projection fix on audited endpoint
 5. **30-minute handoff** (screen share or recorded Loom)
+
+Every deliverable is audit-ready: your team can verify numbers on staging before and after any fix.
 
 ---
 
@@ -64,7 +74,7 @@ A fixed-scope audit of one production hot endpoint where latency or database loa
 
 ## Acceptance Criteria
 
-The audit is complete when:
+The audit is complete when you can answer three questions with evidence: how slow is it, why is it slow, and what do we fix first?
 
 1. **Baseline is documented** with measured query count and latency on the hot endpoint (not estimates).
 2. **Root cause is identified** with code reference and at least one EXPLAIN ANALYZE or SQL trace.
@@ -84,6 +94,8 @@ The audit is complete when:
 
 ## Sample Reference
 
-This SOW maps to the portfolio case study: `spring-perf-rescue-lab` (111 queries to 1, p95 134 ms to 17 ms on N+1 orders list). Production audits follow the same investigation path at larger scale.
+This SOW maps to the portfolio case study ([spring-perf-rescue-lab](https://github.com/muhammadahmed-01/spring-perf-rescue-lab)): 111 queries to 1, p95 134 ms to 17 ms on an N+1 orders list. Production audits follow the same investigation path at larger scale.
 
 **Portfolio reference:** [spring-perf-rescue-lab](https://github.com/muhammadahmed-01/spring-perf-rescue-lab)
+
+**Sample audit report:** [docs/audit-report-template.md](audit-report-template.md)

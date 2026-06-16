@@ -18,7 +18,13 @@
 
 ## Executive Summary
 
-The orders listing endpoint suffered from a Hibernate N+1 SELECT pattern: one query for orders, then one query per order for line items, plus repeated user lookups. Under load (10 concurrent VUs, 100 orders seeded), p95 latency was **134 ms** with **111 SQL statements** per request. After applying `JOIN FETCH` on the hot read path, p95 dropped to **17 ms** with **1 SQL statement** per request. Throughput improved from **62.2 req/s** to **89.3 req/s** on the same hardware. Risk to production: high read amplification, connection pool pressure, and unpredictable p99 under traffic spikes.
+**Bottom line:** The orders listing endpoint is executing 111 SQL statements per request due to a Hibernate N+1 SELECT pattern. Under load, this drives p95 latency to 134 ms and limits throughput to 62 req/s. A single JOIN FETCH on the hot read path reduces the query count to 1, cuts p95 to 17 ms (7.9x improvement), and raises throughput to 89 req/s on the same hardware.
+
+**Business impact:** Every page load on this endpoint amplifies database load linearly with order count. At production traffic, this pattern causes connection pool pressure, unpredictable p99 spikes, and wasted infrastructure spend on queries that should never fire. The fix is low effort (one repository method) with high impact.
+
+**Risk if unaddressed:** High. Read amplification scales with data volume. A traffic spike or marketing campaign will expose this as a P0 outage, not a gradual slowdown.
+
+**Evidence standard:** All numbers below are measured, not estimated. Query counts from Hibernate `StatementInspector`. Latency from k6 load test (10 VUs, 30s). Query plans from EXPLAIN ANALYZE.
 
 ---
 
@@ -44,6 +50,8 @@ The orders listing endpoint suffered from a Hibernate N+1 SELECT pattern: one qu
 | **P2** | Add index on `order_items(order_id)` if seq scans appear at scale | Medium at higher row counts | Low |
 | **P2** | Pagination on orders list (limit 50) | Medium at scale | Low |
 
+**Recommended sequence:** Ship P0 immediately. Add P1 guards before next release. Schedule P2 when row counts or traffic warrant.
+
 ---
 
 ## Recommendations
@@ -53,8 +61,6 @@ The orders listing endpoint suffered from a Hibernate N+1 SELECT pattern: one qu
 3. **Run EXPLAIN ANALYZE** on staging after deploy; attach plans to ticket (commands in `docs/explain-analyze.md`).
 4. **Load test** with k6 at expected peak VUs; track p95/p99 and pool wait time.
 5. **Document** read-path fetch strategy in team wiki so new endpoints do not reintroduce N+1.
-
----
 
 ---
 
@@ -74,4 +80,4 @@ Replace client name, dates, and endpoint URLs before sending. Attach k6 summary 
 
 ---
 
-*Sample filled with portfolio case study measurements (Jun 16, 2026 re-run): 111 queries, p95 134 ms buggy; 1 query, p95 17 ms fixed. Re-run `scripts/capture-portfolio-assets.ps1` to refresh numbers.*
+*Sample filled with portfolio case study measurements (Jun 16, 2026 re-run): 111 queries, p95 134 ms before fix; 1 query, p95 17 ms after fix. Re-run `scripts/capture-portfolio-assets.ps1` to refresh numbers.*

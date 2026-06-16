@@ -24,7 +24,7 @@
     }
     .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 48px; }
     h1 { font-size: 1.75rem; margin: 0 0 8px; }
-    .subtitle { color: var(--muted); margin-bottom: 28px; }
+    .subtitle { color: var(--muted); margin-bottom: 28px; max-width: 720px; }
     .metrics {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -76,8 +76,8 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>Spring Boot + PostgreSQL Performance Case Study</h1>
-    <p class="subtitle">Measured N+1 reproduction: Hibernate lazy load vs JOIN FETCH. Docker + k6 + EXPLAIN.</p>
+    <h1>111 SQL Queries Per Request to 1</h1>
+    <p class="subtitle">Production-proven Spring Boot + PostgreSQL performance case study. Measured root cause (Hibernate N+1), minimal fix (JOIN FETCH), and before/after proof under load. Same failure class resolved at Careem: p99 ~8s to under 1s.</p>
 
     <div class="metrics">
       <div class="metric">
@@ -98,50 +98,50 @@
       </div>
     </div>
 
-    <h2>Load tests (k6)</h2>
+    <h2>Root cause proof (query count)</h2>
+    <figure>
+      <img src="images/query-count-comparison.png" alt="Query count comparison" />
+      <figcaption>X-Query-Count header: 111 hidden SELECTs per request vs 1 after JOIN FETCH fix</figcaption>
+    </figure>
+
+    <h2>Latency under load (k6)</h2>
     <div class="grid">
       <figure>
         <img src="images/k6-buggy-results.png" alt="k6 buggy results" />
-        <figcaption>Buggy endpoint: p95 134 ms, 10 VUs, 30s</figcaption>
+        <figcaption>Before fix: p95 134 ms, 10 VUs, 30s</figcaption>
       </figure>
       <figure>
         <img src="images/k6-fixed-results.png" alt="k6 fixed results" />
-        <figcaption>Fixed endpoint: p95 17 ms, same load</figcaption>
+        <figcaption>After fix: p95 17 ms, identical load profile</figcaption>
       </figure>
     </div>
 
-    <h2>Query count proof</h2>
-    <figure>
-      <img src="images/query-count-comparison.png" alt="Query count comparison" />
-      <figcaption>X-Query-Count: 111 vs 1 on 100 seeded orders</figcaption>
-    </figure>
-
-    <h2>EXPLAIN ANALYZE</h2>
+    <h2>EXPLAIN ANALYZE (why it was slow)</h2>
     <div class="grid">
       <figure>
         <img src="images/explain-buggy.png" alt="EXPLAIN buggy" />
-        <figcaption>N+1: seq scan on order_items per order</figcaption>
+        <figcaption>Before: repeated seq scan on order_items per order</figcaption>
       </figure>
       <figure>
         <img src="images/explain-fixed.png" alt="EXPLAIN fixed" />
-        <figcaption>JOIN FETCH: single hash join plan</figcaption>
+        <figcaption>After: single hash join plan across orders, users, items</figcaption>
       </figure>
     </div>
 
     <h2>Architecture</h2>
     <figure>
       <img src="images/architecture-diagram.png" alt="Architecture diagram" />
-      <figcaption>Buggy lazy loop vs fixed JOIN FETCH path</figcaption>
+      <figcaption>Lazy association loop vs JOIN FETCH on the hot read path</figcaption>
     </figure>
 
-    <h2>Metrics chart</h2>
+    <h2>Full metrics comparison</h2>
     <figure>
       <img src="images/metrics-comparison.png" alt="Metrics comparison chart" />
-      <figcaption>Before/after: queries, p95, throughput</figcaption>
+      <figcaption>Before/after: queries, p95, throughput (measured Jun 16, 2026)</figcaption>
     </figure>
 
     <div class="footer">
-      Muhammad Ahmed · Portfolio case study · Measured Jun 16, 2026 ·
+      Muhammad Ahmed · Audit-ready portfolio case study · Measured Jun 16, 2026 ·
       <a href="../PORTFOLIO-ASSETS.md">Portfolio pack</a> ·
       <a href="../README.md">README</a>
     </div>
