@@ -16,7 +16,7 @@ Load test: k6 `shared-iterations`, 100 VUs, 100,000 HTTP requests per endpoint, 
 | **After** (`/api/orders/fixed`) | 1 | 100,000 | **760** | 505 | 197.8 | 0% |
 | **Improvement** | 111x fewer queries | same load profile | **2.1x faster p95** | 1.7x faster avg | 1.7x more throughput | 0% both runs |
 
-Query counts come from a Hibernate `StatementInspector` (response header `X-Query-Count` and `/api/orders/stats/*`).
+Query counts come from a Hibernate `StatementInspector` wired in `JpaConfig` (response header `X-Query-Count` and `/api/orders/stats/*`).
 
 ![Query count comparison](docs/images/query-count-comparison.png)
 

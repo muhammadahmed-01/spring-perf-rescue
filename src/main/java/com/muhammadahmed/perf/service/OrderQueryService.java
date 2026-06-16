@@ -1,11 +1,10 @@
 package com.muhammadahmed.perf.service;
 
 import com.muhammadahmed.perf.domain.Order;
-import com.muhammadahmed.perf.domain.OrderItem;
 import com.muhammadahmed.perf.dto.OrderSummaryDto;
 import com.muhammadahmed.perf.dto.QueryStatsResponse;
 import com.muhammadahmed.perf.repository.OrderRepository;
-import com.muhammadahmed.perf.support.QueryCountHolder;
+import com.muhammadahmed.perf.support.SqlStatementCounter;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -15,60 +14,57 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderQueryService {
 
     private final OrderRepository orderRepository;
-    private final QueryCountHolder queryCountHolder;
+    private final SqlStatementCounter sqlStatementCounter;
 
-    public OrderQueryService(OrderRepository orderRepository, QueryCountHolder queryCountHolder) {
+    public OrderQueryService(OrderRepository orderRepository, SqlStatementCounter sqlStatementCounter) {
         this.orderRepository = orderRepository;
-        this.queryCountHolder = queryCountHolder;
+        this.sqlStatementCounter = sqlStatementCounter;
     }
 
     @Transactional(readOnly = true)
     public QueryStatsResponse fetchOrdersBuggy() {
-        queryCountHolder.reset();
-        List<Order> orders = orderRepository.findAll();
-        List<OrderSummaryDto> mapped = orders.stream().map(this::mapOrderWithLazyLoads).toList();
-        return new QueryStatsResponse(queryCountHolder.getQueryCount(), mapped.size(), "buggy");
+        sqlStatementCounter.reset();
+        List<OrderSummaryDto> orders = loadBuggyOrders();
+        return new QueryStatsResponse(sqlStatementCounter.getCount(), orders.size(), "buggy");
     }
 
     @Transactional(readOnly = true)
     public QueryStatsResponse fetchOrdersFixed() {
-        queryCountHolder.reset();
-        List<Order> orders = orderRepository.findAllOrdersWithItemsAndUser();
-        List<OrderSummaryDto> mapped = orders.stream().map(this::mapOrderEagerLoaded).toList();
-        return new QueryStatsResponse(queryCountHolder.getQueryCount(), mapped.size(), "fixed");
+        sqlStatementCounter.reset();
+        List<OrderSummaryDto> orders = loadFixedOrders();
+        return new QueryStatsResponse(sqlStatementCounter.getCount(), orders.size(), "fixed");
     }
 
     @Transactional(readOnly = true)
     public List<OrderSummaryDto> listOrdersBuggy() {
-        queryCountHolder.reset();
-        List<OrderSummaryDto> orders = orderRepository.findAll().stream()
-                .map(this::mapOrderWithLazyLoads)
-                .toList();
-        return orders;
+        sqlStatementCounter.reset();
+        return loadBuggyOrders();
     }
 
     @Transactional(readOnly = true)
     public List<OrderSummaryDto> listOrdersFixed() {
-        queryCountHolder.reset();
-        List<OrderSummaryDto> orders = orderRepository.findAllOrdersWithItemsAndUser().stream()
-                .map(this::mapOrderEagerLoaded)
+        sqlStatementCounter.reset();
+        return loadFixedOrders();
+    }
+
+    private List<OrderSummaryDto> loadBuggyOrders() {
+        return orderRepository.findAll().stream()
+                .map(this::mapOrderWithLazyLoads)
                 .toList();
-        return orders;
+    }
+
+    private List<OrderSummaryDto> loadFixedOrders() {
+        return orderRepository.findAllOrdersWithItemsAndUser().stream()
+                .map(this::mapOrder)
+                .toList();
     }
 
     private OrderSummaryDto mapOrderWithLazyLoads(Order order) {
-        // Intentional N+1: each access to lazy user and items triggers separate SELECTs.
-        String customerName = order.getUser().getName();
-        List<OrderSummaryDto.OrderItemDto> items = order.getItems().stream()
-                .map(item -> new OrderSummaryDto.OrderItemDto(
-                        item.getProductName(),
-                        item.getQuantity(),
-                        item.getUnitPrice()))
-                .toList();
-        return toSummary(order, customerName, items);
+        // Intentional N+1: lazy user and items fire separate SELECTs per order.
+        return mapOrder(order);
     }
 
-    private OrderSummaryDto mapOrderEagerLoaded(Order order) {
+    private OrderSummaryDto mapOrder(Order order) {
         String customerName = order.getUser().getName();
         List<OrderSummaryDto.OrderItemDto> items = order.getItems().stream()
                 .map(item -> new OrderSummaryDto.OrderItemDto(

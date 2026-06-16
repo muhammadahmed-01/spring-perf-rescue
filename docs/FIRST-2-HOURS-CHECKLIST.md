@@ -13,7 +13,7 @@ Use this on day one of a Spring Boot + PostgreSQL performance investigation. Eac
 | 3 | Hit endpoint once with curl; note response time and payload size | `curl http://localhost:8080/api/orders/buggy` |
 | 4 | Capture response headers if app exposes query metrics | `X-Query-Count: 111` on buggy path |
 | 5 | Enable or request slow query log threshold (e.g. 100 ms) | `docs/explain-analyze.md` SQL section |
-| 6 | Turn on Hibernate statistics or JDBC proxy in staging | `StatementInspector` in case study (`SqlStatementCounter`) |
+| 6 | Turn on SQL counting in staging (StatementInspector, p6spy, or JDBC proxy) | `SqlStatementCounter` in this case study |
 
 **Output by end of hour 1:** One written baseline: endpoint URL, single-request latency, query count if available, screenshot or log snippet.
 
