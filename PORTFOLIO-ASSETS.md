@@ -10,7 +10,7 @@ Upload these when pitching on Upwork, pinning on GitHub, or posting on LinkedIn.
 
 Alternative (shorter):
 
-**Stop ORM Latency Bleed: 111 Queries to 1, p95 Cut 7.9x (Spring Boot + PostgreSQL)**
+**Stop ORM Latency Bleed: 111 Queries to 1, k6 p95 Cut 2.3x (Spring Boot + PostgreSQL)**
 
 ---
 
